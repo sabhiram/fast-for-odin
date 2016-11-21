@@ -1,0 +1,57 @@
+<link rel = "import" href = "/external/polymer/polymer.html">
+<link rel = "import" href = "/external/iron-ajax/iron-request.html" />
+
+<!--
+
+  ffo-app is the main app module.
+
+-->
+<dom-module id="ffo-app">
+
+
+  <template>
+    <div id="container">
+      <h1>Room [[room.RoomName]]</h1>
+      <a href="/room?id=[[room.RoomID]]">Room [[room.RoomID]]</a>
+    </div>
+    <hr>
+    <template is="dom-repeat" items="[[room.Players]]" as="player">
+      <h3>[[player.Name]]</h3>
+    </template>
+  </template>
+
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'ffo-app',
+
+      properties: {
+        room: {
+          type: Object,
+          notify: true,
+          observer: "_roomChanged",
+        },
+        roomStr: {
+          type: String,
+          value: "",
+        },
+      },
+
+      _roomChanged: function(room) {
+        console.log(room);
+        this.roomStr = JSON.stringify(this.room, null, 4);
+      },
+
+      ready: function() {
+        console.log("App ready!");
+      },
+    });
+  })();
+  </script>
+
+
+</dom-module>
+
