@@ -6,30 +6,79 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <!-- Web components needed for Polymer -->
   <script src="/external/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="stylesheet" href="/external/bootstrap/bootstrap.min.css" />
 
   <!-- App elements -->
-  <!-- <link rel = "import" href = "/elements/gl-groups.html" /> -->
+  <link rel="import" href="/elements/ffo-logic.html" />
+
+  <style>
+  #main-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    padding-bottom: 100px;
+  }
+  </style>
 
 </head>
 <body>
+<template is="dom-bind" id="pageTemplate">
 
-  <div class="container">
-    <h2>Join an existing room:</h2>
-    <input id="roomid" type="text" />
-    <button>Go!</button>
-  </div>
+  <ffo-cookie-manager
+    username="{{username}}"
+    userid="{{userid}}">
+  </ffo-cookie-manager>
 
-  <hr>
+  <ffo-verify-user
+    username="{{username}}"
+    userid="{{userid}}">
+  </ffo-verify-user>
 
-  <div class="container">
-    <h2>Make a new room:</h2>
-    <input id="roomname" type="text" />
-    <input id="roomcount" type="number" />
-    <button>Host Room!</button>
-  </div>
+  <template is="dom-if" if="{{userid}}">
+    <div id="main-container">
 
+      <div class="container">
+        <h2>Make a new room:</h2>
+        <ffo-input-field
+          value="{{roomName}}"
+          title="Room Name" >
+        </ffo-input-field>
+        <ffo-input-field
+          value="{{userCount}}"
+          title="User Count" >
+        </ffo-input-field>
+
+        <br>
+        <button
+          type="button"
+          class="btn btn-primary btn-lg"
+          on-tap="createRoom">
+              Make a room already!
+        </button>
+      </div>
+
+      <hr>
+
+      <div class="container">
+        <h2>Join an existing room:</h2>
+        <ffo-input-field
+          value="{{roomID}}"
+          title="Room ID"
+          placeholder="... or URL" >
+        </ffo-input-field>
+        <br>
+        <button
+          type="button"
+          class="btn btn-primary btn-lg"
+          on-tap="createRoom">
+              Join!
+        </button>
+      </div>
+    </div>
+  </template>
+</template>
 
   <!-- Application javascript goes here. -->
   <script type="text/javascript">

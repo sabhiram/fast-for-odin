@@ -1,0 +1,273 @@
+<!--
+
+  The `ffo-logic' collection of elements are responsible for ensuring the
+  seamless operation of business logic in our little app.
+
+  ffo-cookie-manager -  ensure that we have a username and a userid generated
+                        and loaded into a cookie.  Returns `username' and
+                        `userid' as data attributes for consumption.
+
+-->
+<link rel="import" href="/external/polymer/polymer.html">
+<link rel="import" href="/external/underscore/underscore.html">
+<link rel="import" href="/external/iron-ajax/iron-request.html" />
+<link rel="import" href="/external/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="stylesheet" href="/external/font-awesome/css/font-awesome.min.css" />
+
+<dom-module id="ffo-input-field">
+  <style>
+  #input-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 5px 20px;
+  }
+  #title {
+    min-width: 140px;
+  }
+  #value {
+    min-width: 140px;
+  }
+  </style>
+  <template>
+    <div id="input-row">
+      <div id="title">[[title]]</div>
+      <div id="value">
+        <input type="text" id="inputID" placeholder="[[placeholder]]"
+               value="{{value::input}}"/>
+      </div>
+    </div>
+  </template>
+  <script>
+  (function() {
+    "use strict";
+
+    Polymer({
+      is: "ffo-input-field",
+
+      properties: {
+        title: {
+          type: String,
+          value: null,
+        },
+        value: {
+          type: String,
+          value: null,
+          notify: true,
+        },
+        placeholder: {
+          type: String,
+          value: "",
+        },
+      },
+
+      ready: function() {
+
+      },
+    });
+  })();
+  </script>
+</dom-module>
+
+
+<dom-module id="ffo-verify-user">
+  <style>
+  .header {
+    height: 60px; line-height: 60px;
+    background-color: lightblue;
+    color: white;
+    font-size: 20pt;
+    text-align: right;
+    padding-right: 30px;
+  }
+
+  #user-needed {
+    background-color: lightgreen;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  </style>
+
+  <template>
+    <template is="dom-if" if="[[_userIsLoggedIn(username, userid)]]">
+      <div class="row header">
+        <div class="col-xs-6 col-xs-offset-6">
+          Welcome [[username]]
+          &nbsp;<i class="fa fa-close" on-tap="logout"></i>
+        </div>
+      </div>
+    </template>
+
+    <template is="dom-if" if="[[!_userIsLoggedIn(username, userid)]]">
+      <div id="user-needed" class="row">
+        <div class="container col-xs-offset-2 col-xs-8">
+          <div class="row">
+            <!-- Looks like we don't know each other...-->
+            <br><br>
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="sizing-addon1">
+                Hello, my name is
+              </span>
+
+              <iron-a11y-keys
+                id="a11y" target="[[usernameInputEl]]"
+                keys="enter" on-keys-pressed="registerUser">
+              </iron-a11y-keys>
+              <input
+                type="text" id="usernameInput" class="form-control" autofocus
+                placeholder="Username" value="{{username::input}}"/>
+            </div><br>
+            <button type="button" class="btn btn-primary btn-lg btn-block" on-tap="registerUser">
+              Let's Do It!
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </template>
+
+  <script>
+  (function() {
+    "use strict";
+
+    Polymer({
+      is: "ffo-verify-user",
+
+      properties: {
+        username: {
+          type: String,
+          value: null,
+          notify: true,
+        },
+        userid: {
+          type: String,
+          value: null,
+          notify: true,
+        },
+        usernameInputEl: {
+          type: Object,
+          value: function() {
+            return this.$.usernameInput;
+          },
+        },
+      },
+      _userIsLoggedIn: function() {
+        return (this.userid != null && this.userid != "");
+      },
+      ready: function() {
+        console.log("verify ready");
+      },
+
+      /*
+       *  "UUID" generator; heavily based on this:
+       *  http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+       *  This is client side code which is not expected to be run more than once
+       *  a session.  I am choosing readability vs speed here.
+       */
+      UUID: function() {
+        return _.reduce("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx", function(acc, x) {
+          switch (x) {
+          case 'x':
+            return acc + (Math.random()*16|0).toString(16);
+          case 'y':
+            return acc + (0x08 | (Math.random()*4|0)).toString(16);
+          default:
+            return acc + x;
+          }
+        }, "");
+      },
+
+      registerUser: function() {
+        if (this.username == null || this.username == "") {
+          alert("You need to have a name...");
+          return;
+        }
+        this.set("username", this.username);
+        this.set("userid", this.UUID());
+      },
+
+      logout: function() {
+        this.set("username", null);
+        this.set("userid", null);
+        document.cookie = "";
+        location.reload();
+      },
+    });
+  })();
+  </script>
+
+
+</dom-module>
+
+
+<!--
+
+  Convert the document's cookie on-load to a username and id pair.  If the username
+  or id changes, update the document's cookie.
+
+-->
+<dom-module id="ffo-cookie-manager">
+  <template>
+  </template>
+
+  <script>
+  (function() {
+    "use strict";
+
+    Polymer({
+      is: "ffo-cookie-manager",
+
+      properties: {
+        username: {
+          type: String,
+          value: null,
+          notify: true,
+        },
+        userid: {
+          type: String,
+          value: null,
+          notify: true,
+        },
+      },
+
+      observers: [
+        "_metadataChanged(username.*, userid.*)",
+      ],
+
+      // This listens on the userid since that is computed at the time of button
+      // press.  The username is bound to an input so if this was data bound to the
+      // username, it would frivilously update a bunch.
+      _metadataChanged: function() {
+        console.log("Metadata changed! ", this.username, this.userid);
+        if (!this.username || !this.userid)
+          return;
+        var obj = {
+          "username": this.username,
+          "userid": this.userid,
+        };
+        document.cookie = JSON.stringify(obj);
+      },
+
+      ready: function() {
+        var obj;
+        try {
+          console.log("Cookie is: " +document.cookie);
+          obj = JSON.parse(document.cookie);
+        } catch(e) {
+          return;
+        }
+        console.log("Loaded cookie:"); console.log(obj);
+        if (!obj) return;
+
+        if ("username" in obj) this.set("username", obj["username"]);
+        if ("userid" in obj) this.set("userid", obj["userid"]);
+      },
+    });
+  })();
+  </script>
+</dom-module>
