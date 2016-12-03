@@ -14,6 +14,10 @@ var (
 	counter = 0
 )
 
+func (s *Server) SocketIOError(so socketio.Socket, err error) {
+	so.Emit("error", err.Error())
+}
+
 func (s *Server) SocketIOHandler() (*socketio.Server, error) {
 	io, err := socketio.NewServer(nil)
 	if err != nil {
@@ -29,14 +33,14 @@ func (s *Server) SocketIOHandler() (*socketio.Server, error) {
 			roomID = id
 			room, err := s.GetRoom(id)
 			if err != nil {
-				log.Printf("Error: %s\n", err.Error())
+				s.SocketIOError(so, err)
 				return
 			}
 
 			so.Join(roomID)
 			bs, err := json.Marshal(room)
 			if err != nil {
-				log.Printf("Error: %s\n", err.Error())
+				s.SocketIOError(so, err)
 				return
 			}
 			so.Emit("update-room", string(bs))

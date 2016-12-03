@@ -19,47 +19,49 @@
   <style>
   </style>
 
-  <template is="dom-if" if="[[userid]]">
-    <div id="main-container">
+  <template>
+    <template is="dom-if" if="[[userid]]">
+      <div id="main-container">
 
-      <div class="container">
-        <h2>Make a new room:</h2>
-        <ffo-input-field
-          value="{{roomName}}"
-          title="Room name" >
-        </ffo-input-field>
-        <ffo-input-field
-          value="{{numPlayers}}"
-          title="Number of players:" >
-        </ffo-input-field>
+        <div class="container">
+          <h2>Make a new room:</h2>
+          <ffo-input-field
+            value="{{roomName}}"
+            title="Room name" >
+          </ffo-input-field>
+          <ffo-input-field
+            value="{{numPlayers}}"
+            title="Number of players:" >
+          </ffo-input-field>
 
-        <br>
-        <button
-          type="button"
-          class="btn btn-primary btn-lg"
-          on-tap="createRoom">
-              Make a room already!
-        </button>
+          <br>
+          <button
+            type="button"
+            class="btn btn-primary btn-lg"
+            on-tap="createRoom">
+                Make a room already!
+          </button>
+        </div>
+
+        <hr>
+
+        <div class="container">
+          <h2>Join an existing room:</h2>
+          <ffo-input-field
+            value="{{roomID}}"
+            title="Room ID"
+            placeholder="... or URL" >
+          </ffo-input-field>
+          <br>
+          <button
+            type="button"
+            class="btn btn-primary btn-lg"
+            on-tap="joinRoom">
+                Join!
+          </button>
+        </div>
       </div>
-
-      <hr>
-
-      <div class="container">
-        <h2>Join an existing room:</h2>
-        <ffo-input-field
-          value="{{roomID}}"
-          title="Room ID"
-          placeholder="... or URL" >
-        </ffo-input-field>
-        <br>
-        <button
-          type="button"
-          class="btn btn-primary btn-lg"
-          on-tap="joinRoom">
-              Join!
-        </button>
-      </div>
-    </div>
+    </template>
   </template>
 
   <script>

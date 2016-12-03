@@ -8,18 +8,50 @@
 -->
 <dom-module id="ffo-app">
 
+  <style>
+  #error-box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    border-radius: 5px;
+    width: 90%;
+    padding: 12px;
+
+    margin: 0 auto;
+    background-color: #d88080;
+    margin-top: 20px;
+  }
+  .error {
+    color: #383838;
+  }
+  .error-close {
+    cursor: pointer;
+    color: #383838;
+    padding-left: 10px;
+  }
+  .error-close:hover {
+    color: black;
+  }
+  </style>
 
   <template>
     <div id="container">
       <h1>Room [[room.RoomName]]</h1>
       <a href="/room?id=[[roomid]]">RoomID: [[roomid]]</a>
     </div>
-    <hr>
+
+    <template is="dom-if" if="[[error]]">
+      <div id="error-box">
+        <div class="error">Uh oh we got an error: [[error]]</div>
+        <div class="error-close" on-tap="_clearError">(x)</div>
+      </div>
+    </template>
+
     <template is="dom-repeat" items="[[room.Players]]" as="player">
       <h3>[[player.Name]]</h3>
     </template>
   </template>
-
 
   <script>
   (function() {
@@ -38,12 +70,20 @@
           notify: true,
           observer: "_roomChanged",
         },
+        error: {
+          type: String,
+          notify: true,
+        },
       },
 
       _roomChanged: function(room) {
         console.log("Room changed");
         console.log(room);
         this.roomStr = JSON.stringify(this.room, null, 4);
+      },
+
+      _clearError: function() {
+        this.set("error", null);
       },
 
       ready: function() {
@@ -54,6 +94,11 @@
           console.log("Sending room id: " + this.roomid)
           socket.emit("roomid", this.roomid)
         }
+
+        socket.on("error", function(err) {
+          console.log("Got error:" + err)
+          this.set("error", err)
+        }.bind(this));
 
         socket.on("update-room", function(msg) {
           console.log("Update called!")
