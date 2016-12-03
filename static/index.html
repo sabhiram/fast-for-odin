@@ -36,55 +36,17 @@
     userid="{{userid}}">
   </ffo-verify-user>
 
-  <template is="dom-if" if="{{userid}}">
-    <div id="main-container">
+  <ffo-create-or-join
+    username="[[username]]"
+    userid="[[userid]]">
+  </ffo-create-or-join>
 
-      <div class="container">
-        <h2>Make a new room:</h2>
-        <ffo-input-field
-          value="{{roomName}}"
-          title="Room Name" >
-        </ffo-input-field>
-        <ffo-input-field
-          value="{{userCount}}"
-          title="User Count" >
-        </ffo-input-field>
-
-        <br>
-        <button
-          type="button"
-          class="btn btn-primary btn-lg"
-          on-tap="createRoom">
-              Make a room already!
-        </button>
-      </div>
-
-      <hr>
-
-      <div class="container">
-        <h2>Join an existing room:</h2>
-        <ffo-input-field
-          value="{{roomID}}"
-          title="Room ID"
-          placeholder="... or URL" >
-        </ffo-input-field>
-        <br>
-        <button
-          type="button"
-          class="btn btn-primary btn-lg"
-          on-tap="createRoom">
-              Join!
-        </button>
-      </div>
-    </div>
-  </template>
 </template>
 
   <!-- Application javascript goes here. -->
   <script type="text/javascript">
 
-    window.addEventListener("WebComponentsReady", function(e) {
-    });
+    window.addEventListener("WebComponentsReady", function(e) {});
 
   </script>
 </body>

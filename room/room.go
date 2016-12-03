@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"strings"
 	"time"
 
 	socketio "github.com/googollee/go-socket.io"
@@ -17,7 +18,10 @@ func GetRandomRoomID() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(rb), nil
+
+	ret := base64.URLEncoding.EncodeToString(rb)
+	ret = strings.Replace(ret, "=", "0", -1)
+	return ret, nil
 }
 
 type Player struct {
@@ -57,8 +61,6 @@ func NewRoom(socket *socketio.Server, name string, count int, start, perRound ti
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Made id: %#v\n", id)
-	id = "1234"
 
 	return &Room{
 		socket: socket,

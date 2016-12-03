@@ -12,7 +12,7 @@
   <template>
     <div id="container">
       <h1>Room [[room.RoomName]]</h1>
-      <a href="/room?id=[[room.RoomID]]">Room [[room.RoomID]]</a>
+      <a href="/room?id=[[roomid]]">RoomID: [[roomid]]</a>
     </div>
     <hr>
     <template is="dom-repeat" items="[[room.Players]]" as="player">
@@ -29,24 +29,41 @@
       is: 'ffo-app',
 
       properties: {
+        roomid: {
+          type: String,
+          notify: true,
+        },
         room: {
           type: Object,
           notify: true,
           observer: "_roomChanged",
         },
-        roomStr: {
-          type: String,
-          value: "",
-        },
       },
 
       _roomChanged: function(room) {
+        console.log("Room changed");
         console.log(room);
         this.roomStr = JSON.stringify(this.room, null, 4);
       },
 
       ready: function() {
-        console.log("App ready!");
+        var socket = io();
+        console.log("connected " + this.roomid);
+
+        if (this.roomid.length > 0) {
+          console.log("Sending room id: " + this.roomid)
+          socket.emit("roomid", this.roomid)
+        }
+
+        socket.on("update-room", function(msg) {
+          console.log("Update called!")
+          console.log(msg);
+          this.set("room", JSON.parse(msg));
+        }.bind(this));
+
+        socket.on("message", function(msg) {
+          console.log("Got message: " + msg);
+        }.bind(this));
       },
     });
   })();

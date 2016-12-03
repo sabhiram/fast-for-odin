@@ -47,7 +47,10 @@
   </template>
 
     <template is="dom-if" if="[[username && params.id]]">
-      <ffo-app room="[[room]]"></ffo-app>
+      <ffo-app
+        roomid="[[params.id]]"
+        room="{{room}}">
+      </ffo-app>
     </template>
   </template>
 
@@ -57,20 +60,6 @@
   <!-- Application javascript goes here. -->
   <script type="text/javascript">
     window.addEventListener("WebComponentsReady", function(e) {
-      var pageTemplate = document.getElementById("pageTemplate");
-      var cookie = document.cookie;
-
-      if (cookie != "") {
-        pageTemplate.needUserName = false;
-      } else {
-        pageTemplate.needUserName = true;
-        document.cookie = "ABC123"
-      }
-
-      var socket = io();
-      socket.on("update-room", function(msg){
-        pageTemplate.room = JSON.parse(msg);
-      });
     });
 
   </script>

@@ -2,19 +2,19 @@ package server
 
 import (
 	"log"
-	"time"
+	// "time"
+	"encoding/json"
 
 	socketio "github.com/googollee/go-socket.io"
 
-	"github.com/sabhiram/fast-for-odin/room"
+	// "github.com/sabhiram/fast-for-odin/room"
 )
 
 var (
 	counter = 0
-	names   = []string{"enney", "miiney", "miney", "moe"}
 )
 
-func SocketIOHandler() (*socketio.Server, error) {
+func (s *Server) SocketIOHandler() (*socketio.Server, error) {
 	io, err := socketio.NewServer(nil)
 	if err != nil {
 		return nil, err
@@ -22,20 +22,31 @@ func SocketIOHandler() (*socketio.Server, error) {
 
 	counter = 0
 
-	r, err := room.NewRoom(io, "Awesome room", 3, 10*time.Second, 100*time.Second)
-
 	io.On("connection", func(so socketio.Socket) {
-		log.Println("on connection")
+		roomID := ""
 
-		so.Join("1234")
+		so.On("roomid", func(id string) {
+			roomID = id
+			room, err := s.GetRoom(id)
+			if err != nil {
+				log.Printf("Error: %s\n", err.Error())
+				return
+			}
 
-		p := room.NewPlayer(names[counter], 10*time.Second)
-		counter += 1
-		r.AddPlayer(p)
+			so.Join(roomID)
+			bs, err := json.Marshal(room)
+			if err != nil {
+				log.Printf("Error: %s\n", err.Error())
+				return
+			}
+			so.Emit("update-room", string(bs))
+		})
 
 		so.On("message", func(msg string) {
 			log.Println("emit:", so.Emit("message", msg))
-			so.BroadcastTo("1234", "message", msg)
+			if len(roomID) > 0 {
+				so.BroadcastTo(roomID, "message", msg)
+			}
 		})
 
 		so.On("disconnection", func() {
